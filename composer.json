@@ -1,0 +1,17 @@
+{
+	"name": "verysimple/db-reflector",
+	"description": "Cross-Platform DB Reflection",
+	"version": "1.0.0",
+	"require": {
+		"php": ">=5.4.0"
+	},
+	"require-dev": {
+		"verysimple/unit-test-printer": ">=1.0.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/Verysimple/DB/Adapter",
+			"src/Verysimple/DB/Reflector"
+		]
+	}
+}
