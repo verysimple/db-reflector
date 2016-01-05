@@ -3,8 +3,6 @@
  * SetupTest.php
  */
 
-require __DIR__.'/../vendor/autoload.php';
-
 use Verysimple\DB\Reflector\Reflector;
 
 /**

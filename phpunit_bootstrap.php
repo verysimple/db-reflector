@@ -20,6 +20,8 @@
  * 
  */
 
+require __DIR__.'/vendor/autoload.php';
+
 // See above about the file phpunit_connection.php that must be created. This information is not
 // in version control because it contains machine-specific configuration settings.
 if (file_exists('phpunit_connection.php')) {
