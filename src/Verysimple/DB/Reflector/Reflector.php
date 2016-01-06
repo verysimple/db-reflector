@@ -22,6 +22,11 @@ class Reflector {
 	/** @var array */
 	public $connection;
 	
+	private $dsn;
+	private $username;
+	private $password;
+	private $options;
+	
 	/**
 	 * 
 	 * @param string $dsn
@@ -32,11 +37,45 @@ class Reflector {
 	 */
 	public function __construct($dsn, $username = null, $password = null, $options = null)
 	{
-		$this->parseDSN($dsn);
+		$this->dsn = $dsn;
+		$this->username = $username;
+		$this->password = $password;
+		$this->options = $options;
 		
-		$this->pdo = new PDO($dsn,$username,$password,$options);
+		// unless specific error mode is specified, set it to throw exceptions
+		if ($this->options == null || empty($this->options[PDO::ATTR_ERRMODE])) {
+			$this->options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
+		}
 		
-		// auto-detect the adapter needed to get vendor-specific SQL
+		$this->parseDSN();
+		
+		$this->initAdapter();
+		
+	}
+	
+	/**
+	 * Parse $this->dsn into the various components and populate
+	 * them into the connections array
+	 */
+	private function parseDSN()
+	{
+		list($type,$params) = explode(':', $this->dsn, 2);
+	
+		$this->connection = array('type'=>$type);
+	
+		$parts = explode(';', $params);
+		foreach ($parts as $part) {
+			list($key,$val) = explode('=', $part);
+			$this->connection[$key] = $val;
+		}
+	}
+	
+	/**
+	 * auto-detect the adapter needed to get vendor-specific SQL
+	 * @throws \Exception
+	 */
+	private function initAdapter()
+	{
 		if ($this->connection['type'] == 'mysql') {
 			$this->adapter = new MySQLAdapter();
 		}
@@ -45,11 +84,39 @@ class Reflector {
 		}
 		elseif ($this->connection['type'] == 'sqlite') {
 			$this->adapter = new SQLiteAdapter();
-		}		
+		}
 		else {
 			throw new \Exception('Unsupported DB Type');
 		}
-		
+	}
+	
+	/**
+	 * Opens the connection if necessary, otherwise does nothing
+	 */
+	private function openConnection()
+	{
+		if (!$this->pdo) {
+			try {
+				$this->pdo = new PDO($this->dsn,$this->username,$this->password,$this->options);
+			}
+			catch (\PDOException $ex) {
+				
+				if ($ex->getCode() == '2002') {
+					throw new \PDOException('Socket connection failed. See http://tinyurl.com/69gjg93','2002',$ex);
+				}
+				
+				throw $ex;
+				
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	private function closeConnection()
+	{
+		$this->pdo = null;
 	}
 	
 	/**
@@ -60,6 +127,8 @@ class Reflector {
 	 */
 	public function execute($sql,$params = null)
 	{
+		$this->openConnection();
+		
 		$stmt = $this->pdo->prepare($sql);
 		
 		if (!$stmt->execute($params))
@@ -72,27 +141,12 @@ class Reflector {
 	}
 	
 	/**
-	 * Parse the DSN string into the various components and populate
-	 * them into the connections array
-	 */
-	private function parseDSN($dsn)
-	{
-		list($type,$params) = explode(':', $dsn, 2);
-		
-		$this->connection = array('type'=>$type);
-		
-		$parts = explode(';', $params);
-		foreach ($parts as $part) {
-			list($key,$val) = explode('=', $part);
-			$this->connection[$key] = $val;
-		}
-	}
-	
-	/**
 	 * @return DB
 	 */
 	public function getDB()
 	{
+		$this->openConnection();
+		
 		$name = $this->connection['dbname'];
 		return new DB($this, $name);
 	}
