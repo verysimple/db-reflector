@@ -1,17 +1,36 @@
 {
 	"name": "verysimple/db-reflector",
-	"description": "Cross-Platform DB Reflection",
+	"description": "Allows a cross-vendor API to view database schema information",
+	"homepage": "https://github.com/verysimple/db-reflector",
+	"keywords": ["php","mysql","postgresql","reflection","schema"],
+	"license": "MIT",
 	"version": "1.0.0",
 	"require": {
 		"php": ">=5.4.0"
 	},
 	"require-dev": {
-		"verysimple/unit-test-printer": ">=1.1.0"
+		"verysimple/unit-test-printer": ">=1.1.1"
 	},
 	"autoload": {
 		"classmap": [
 			"src/Verysimple/DB/Adapter",
 			"src/Verysimple/DB/Reflector"
 		]
-	}
+	},
+	"scripts": {
+        "uninstall": [
+        	"rm -rf vendor",
+        	"rm -rf composer.lock"
+        	],
+        "build": [
+        	"composer run-script uninstall",
+        	"composer install --no-dev"
+        	],
+        "test": "phpunit",
+        "coverage": [
+            "rm -f tests-coverage",
+            "mkdir tests-coverage",
+            "phpunit --coverage-html ./tests-coverage"
+        ]
+    }
 }
