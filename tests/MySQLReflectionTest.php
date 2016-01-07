@@ -4,6 +4,7 @@
  */
 
 use Verysimple\DB\Reflector\Reflector;
+use Verysimple\DB\Reflector\Column;
 
 /**
  * @author jason
@@ -30,6 +31,8 @@ class MySQLReflectionTest extends PHPUnit_Framework_TestCase
 				$foundTable = true;
 				
 				$this->assertFalse($table->isView,'Expected package to be a regular table');
+				
+				$this->assertEquals('p_',$table->getColumnPrefix(),'Expected column prefix of "p_"');
 				 
 				$key = $table->getPrimaryKey();
 				$this->assertEquals('p_id',$key[0]->name,'Expected primary key names p_id');
@@ -54,6 +57,20 @@ class MySQLReflectionTest extends PHPUnit_Framework_TestCase
 
     			$columns = $table->GetColumns();
     			$this->assertTrue(is_array($columns),'Expected an array of columns.');
+    			
+    			$columnFound = false;
+    			
+    			foreach ($columns as $column) {
+    				if ($column->name == 'p_ship_date') {
+    					$columnFound = true;
+    					
+    					$this->assertEquals(Column::TYPE_DATE,$column->columnType,'Expected p_ship_date column type of TYPE_DATE');
+    					
+    					break;
+    				}
+    			}
+    				
+    			$this->assertTrue($columnFound,'Expected to find a column named "p_ship_date"');
 
     			break;
     		}
