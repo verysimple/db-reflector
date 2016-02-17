@@ -4,7 +4,9 @@ DB Reflector inspects a database schema and converts it into a simple collection
 
 DB Reflector neutralizes vendor-specific information and provides a consistent schema for all supported databases. Some possible uses for this Reflector are for building a generic DB editor or a code generator.
 
-Databases currently supported are MySQL and Postgres.
+Databases currently supported are MySQL and Postgres. SQLite is being worked on.
+
+Available on [packagist.org](https://packagist.org/packages/verysimple/db-reflector).
 
 ## Installation
 
